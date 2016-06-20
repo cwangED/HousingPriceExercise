@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "# Following the experiments in my Matlab code, we continue with the our regression model.\n# Because of the limit of time, I won't perform a complicated experiment as I did in Matlab.\n# Just a simple SVM regression (SVR) model and calculate the RMS error.\n\"SVM regression: we have a wide choice of libs, e.g., e1701, randomForrest, stats, knn, the famous caret, etc.\"\n\n# Here we use e1701, one of the mostly used reg/clas lib\nlibrary(e1071)\nlibrary(ggplot2)\nlibrary(caret)\n# 1. load and clean data \n\n# Set Paths\ndataDir <- \"/home/cwang/Desktop/amazonInterview/RCode/\"\ntrStruc.name <- \"trainFile.csv\"\nteStruc.name <- \"testFile.csv\"\n\n# Read data\ntrStruc.Data <- read.csv(paste(dataDir, trStruc.name, sep=\"\"), header = FALSE)\nteStruc.Data <- read.csv(paste(dataDir, teStruc.name, sep=\"\"), header = FALSE)\n\n# Clean data: sort data based on date, normalize date as number of days\ncolnames(trStruc.Data) <- c(\"Price\", \"Date\", \"Type\", \"London\", \"Lease\")\ncolnames(teStruc.Data) <- c(\"Price\", \"Date\", \"Type\", \"London\", \"Lease\")\ntrStruc.Data <- trStruc.Data[order(trStruc.Data$Date), ]\nteStruc.Data <- teStruc.Data[order(teStruc.Data$Date), ]\nteStruc.Data$Date <- teStruc.Data$Date - min(trStruc.Data$Date)\ntrStruc.Data$Date <- trStruc.Data$Date - min(trStruc.Data$Date)\n\n# Set feature and value\ntrStruc.X = trStruc.Data[, 2:5]\ntrStruc.Y = trStruc.Data[, 1]\nteStruc.X = teStruc.Data[ , 2:5]\nteStruc.Y = teStruc.Data[, 1]\n\n# 2. fit the model\nsvStruc.model <- svm(trStruc.X, trStruc.Y)\nsvStruc.trY <- predict(svStruc.model, trStruc.X)\n\n# calculate the error\nsvStruc.trErrors <- trStruc.Y-svStruc.trY\nsvStruc.trError <- sqrt(mean(svStruc.trErrors^2))\nprint (paste('Training RMS error is: ', svStruc.trError, sep = \"\"))\n\n# 3. test the model\nsvStruc.teY = predict(svStruc.model, teStruc.X)\nsvStruc.teErrors <- teStruc.Y-svStruc.teY\nsvStruc.teError <- sqrt(mean(svStruc.teErrors^2))\nprint (paste('Testing RMS error is: ', svStruc.teError, sep = \"\"))\n\n\"Looks better than in Matlab\"\n\n# 4. we can tune the model using R function tune(svm, ...)\n\n# 5. we can also try knn regressor as in matlab using caret package\nknnStruc.model <- knnreg(trStruc.X, trStruc.Y, 3)\nknnStruc.teY <- predict(knnStruc.model, teStruc.X)\nknnStruc.teError <- mean((teStruc.Y - knnStruc.teY)^2)\nprint (paste('Knn Testing RMS error is: ', knnStruc.teError, sep = \"\"))",
+    "created" : 1466391203487.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4143067619",
+    "id" : "CD185D96",
+    "lastKnownWriteTime" : 1466399968,
+    "last_content_update" : 1466399968527,
+    "path" : "~/Desktop/amazonInterview/RCode/housingPriceAna.R",
+    "project_path" : "housingPriceAna.R",
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

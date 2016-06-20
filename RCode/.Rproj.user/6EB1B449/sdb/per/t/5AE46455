@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: \"housingPriceAna\"\nauthor: \"Chengjia Wang\"\ndate: \"19 June 2016\"\noutput: html_document\n---\n\n```{r setup, include=FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n# SVM Regression\nFollowing the experiments in my Matlab code, we continue with the our regression model.\nBecause of the limit of time, I won't perform a complicated experiment as I did in Matlab.\nJust a simple SVM regression (SVR) model and calculate the RMS error.\nSVM regression: we have a wide choice of libs, e.g., e1701, randomForrest, stats, knn, the famous caret, etc.\nHere we use e1701, one of the mostly used reg/clas lib\n```{r}\nlibrary(e1071)\nlibrary(ggplot2)\n```\n\n## 1. load and clean data \n\n### Set Paths\n```{r}\ndataDir <- \"/home/cwang/Desktop/amazonInterview/RCode/\"\ntrStruc.name <- \"trainFile.csv\"\nteStruc.name <- \"testFile.csv\"\n```\n\n### Read data\n```{r}\ntrStruc.Data <- read.csv(paste(dataDir, trStruc.name, sep=\"\"), header = FALSE)\nteStruc.Data <- read.csv(paste(dataDir, teStruc.name, sep=\"\"), header = FALSE)\n```\n\n### Clean data: sort data based on date, normalize date as number of days\n```{r}\ncolnames(trStruc.Data) <- c(\"Price\", \"Date\", \"Type\", \"London\", \"Lease\")\ncolnames(teStruc.Data) <- c(\"Price\", \"Date\", \"Type\", \"London\", \"Lease\")\ntrStruc.Data <- trStruc.Data[order(trStruc.Data$Date), ]\nteStruc.Data <- teStruc.Data[order(teStruc.Data$Date), ]\nteStruc.Data$Date <- teStruc.Data$Date - min(trStruc.Data$Date)\ntrStruc.Data$Date <- trStruc.Data$Date - min(trStruc.Data$Date)\n```\n\n### Set feature and value\n```{r}\ntrStruc.X = trStruc.Data[, 2:5]\ntrStruc.Y = trStruc.Data[, 1]\nteStruc.X = teStruc.Data[ , 2:5]\nteStruc.Y = teStruc.Data[, 1]\n```\n\n## 2. fit the model\n```{r qplot, fig.width=4, fig.height=3, message=FALSE}\nsvStruc.model <- svm(trStruc.X, trStruc.Y)\nsvStruc.trY <- predict(svStruc.model, trStruc.X)\n# plot\nggplot(cbind(trStruc.X, trStruc.Y), aes(x=Date, y=trStruc.Y) ) + geom_point() + geom_smooth()\n```\n\n### calculate the error\n```{r}\nsvStruc.trErrors <- trStruc.Y-svStruc.trY\nsvStruc.trError <- sqrt(mean(svStruc.trErrors^2))\nprint (paste('Training RMS error is: ', svStruc.trError, sep = \"\"))\n```\n\n## 3. test the model\n```{r}\nsvStruc.teY = predict(svStruc.model, teStruc.X)\nsvStruc.teErrors <- teStruc.Y-svStruc.teY\nsvStruc.teError <- sqrt(mean(svStruc.teErrors^2))\nprint (paste('Testing RMS error is: ', svStruc.teError, sep = \"\"))\n```\n\nLooks better than in Matlab\n\n## 4. we can tune the model using R function tune(svm, ...)\n",
+    "created" : 1466397536176.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3320808869",
+    "id" : "5AE46455",
+    "lastKnownWriteTime" : 1466399192,
+    "last_content_update" : 1466399192958,
+    "path" : "~/Desktop/amazonInterview/RCode/housingPriceAna.Rmd",
+    "project_path" : "housingPriceAna.Rmd",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

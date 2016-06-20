@@ -1,0 +1,502 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Preprocessing</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-06-20"><meta name="DC.source" content="Preprocessing.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">SECTION TITLE</a></li><li><a href="#5">configuration: set file paths and define features (using a 3rd party open source fast csv reader)</a></li><li><a href="#6">prepare the files:</a></li></ul></div><pre class="codeinput">close <span class="string">all</span>;
+fclose <span class="string">all</span>;
+clear;
+</pre><h2>SECTION TITLE<a name="2"></a></h2><p>DESCRIPTIVE TEXT</p><p><img src="Preprocessing_eq17467035999183504765.png" alt="$$e^{\pi i} + 1 = 0$$"></p><pre class="codeinput"><span class="comment">% Preprocessing step:</span>
+<span class="comment">% get and clean the data</span>
+</pre><p><b>BOLD TEXT</b></p><h2>configuration: set file paths and define features (using a 3rd party open source fast csv reader)<a name="5"></a></h2><p>set paths</p><pre class="codeinput">rawPath = <span class="string">'/home/cwang/Desktop/amazonInterview/pp-complete.csv'</span>;
+opPath = <span class="string">'/home/cwang/Desktop/amazonInterview/MatlabWork'</span>;
+<span class="keyword">if</span> ~exist(opPath, <span class="string">'dir'</span>)
+    mkdir(opPath)
+<span class="keyword">end</span>
+
+<span class="comment">% define column no of features in the raw file: lease duration (7),</span>
+<span class="comment">% property type (5), London or Not (12)</span>
+nColumnLD = 7;
+nColumnPT = 5;
+nColumnLN = 12;
+nColumnPR = 2;
+nColumnDate = 3;
+</pre><h2>prepare the files:<a name="6"></a></h2><p>1. The raw file a huge csv file which will take a long time to import, thus I split the file into two first: the training set with data before 2015, and the testing file with data after 2015 2. Because we only need the 7, 5, and 12 columns in the file, other data will be ignored. However, one important column is the date (column 3), to check whether the value of the property rise naturally 3. For convenient analysis, all the data will be converted to and represented by a float number</p><pre class="codeinput"><span class="comment">% number of columns can be detected in linux by (actually not necessary):</span>
+<span class="comment">% [status, result] = system( ['wc -l ', rawPath] );</span>
+
+<span class="comment">% check whether there is header</span>
+fidRaw = fopen(rawPath, <span class="string">'r'</span>);
+disp(fgetl(fidRaw));
+fclose(fidRaw);
+<span class="comment">% turns out no header</span>
+
+<span class="comment">% set the split point and file format of testing and training date</span>
+splitDate = datenum(<span class="string">'2015-1-1'</span>);
+fFormatSpec = <span class="string">'%d, %d, %d, %d, %d\n'</span>;
+
+<span class="comment">% to sample the date build up a 4-D count matrix that count the number of</span>
+<span class="comment">% each input type:</span>
+<span class="comment">% 1. month (1995-2014: 20*12 = 240 months); 2. property type (5 types);</span>
+<span class="comment">% 3. whether london (0 or 1); 4. lease duration ( long or unlimit)</span>
+indMatTrain = zeros(240, 4, 2, 2);
+indMatTest = zeros(12, 4, 2, 2);
+
+<span class="comment">% 10 each train type, at least 5</span>
+maxTrainEach = 5;
+<span class="comment">% minTrainEach = 2;</span>
+
+<span class="comment">% 10000 each year</span>
+maxTrainEachYear = 400;
+
+<span class="comment">% 20 each test type</span>
+maxTestEach = 10;
+maxTestYear = 1000;
+
+<span class="comment">% build date indicator vector</span>
+[Y,M] = meshgrid(1995:2014, 1:12);
+sDatesTrain = datenum([Y(:), M(:), ones(numel(Y),1)]);
+dateSeriesTrain = 1:numel(sDatesTrain);
+
+sDatesTest = datenum(2015, 1:12, 1);
+dateSeriesTest = 1:numel(sDatesTest);
+
+<span class="comment">% build property type indicator vector</span>
+sTypes = int8([<span class="string">'D'</span>, <span class="string">'S'</span>, <span class="string">'T'</span>, <span class="string">'F'</span>]); <span class="comment">% we won't consider O as it's rarely happened</span>
+typeSeries = 1:4;
+
+<span class="comment">% build location indicator vector</span>
+sLNs = logical([0, 1]);
+LNSeries = 1:2;
+
+<span class="comment">% build lease duration indicator vector</span>
+sLDs = int8([<span class="string">'F'</span>, <span class="string">'L'</span>]);
+LDSeries = 1:2;
+
+<span class="comment">% each time read a line in the file, at the same time sample the monthly data</span>
+fidRaw = fopen(rawPath, <span class="string">'r'</span>);
+fidTrain = fopen([opPath, filesep, <span class="string">'trainFile.csv'</span>], <span class="string">'a'</span>);
+fidTest = fopen([opPath, filesep, <span class="string">'testFile.csv'</span>], <span class="string">'a'</span>);
+nLine = 1;
+nYear = 1; <span class="comment">% 1995</span>
+<span class="keyword">while</span> ~feof(fidRaw)
+    disp([<span class="string">'line: '</span>, num2str(nLine)]);
+    rawLine = fgetl(fidRaw);
+    rawLine = strsplit(rawLine, <span class="string">'","'</span>);
+
+    <span class="comment">% processing price in int32</span>
+    rawPrice = int32(str2double(rawLine(nColumnPR)));
+
+    <span class="comment">% data</span>
+    rawDate = datenum(rawLine(nColumnDate));
+    <span class="keyword">if</span> (nYear &lt;= 20 &amp;&amp; rawDate &lt; sDatesTrain( (nYear-1)*12 + 1 ) )
+       <span class="keyword">while</span> rawDate &lt;= sDatesTrain((nYear-1)*12 + 1)
+            <span class="comment">% every time skip 10000 lines until find the next year</span>
+            <span class="keyword">for</span> yI = 1:100000
+                fgetl(fidRaw);
+            <span class="keyword">end</span>
+            nLine = nLine + 100000;
+            disp([<span class="string">'line: '</span>, num2str(nLine)])
+            rawLine = fgetl(fidRaw);
+            rawLine = strsplit(rawLine, <span class="string">'","'</span>);
+            rawDate = datenum(rawLine(nColumnDate));
+            nLine = nLine+1;
+            disp([<span class="string">'line: '</span>, num2str(nLine)])
+        <span class="keyword">end</span>
+        <span class="keyword">continue</span>;
+    <span class="keyword">end</span>
+
+    <span class="comment">% property type only have D, S, T, F, O, coded to their ASCII code</span>
+    rawType = int8(rawLine{nColumnPT});
+
+    <span class="comment">% location: london -&gt; 1, others 0</span>
+    rawLN = ~isempty(regexpi(rawLine{nColumnLN}, <span class="string">'LONDON'</span>));
+
+    <span class="comment">% Duration: using ASCII code</span>
+    rawLD = int8(rawLine{nColumnLD});
+
+    <span class="comment">% check whether there are enough samples of this record</span>
+    <span class="comment">% dateIndex</span>
+    indexDateTrain = min(dateSeriesTrain(sDatesTrain &gt;= rawDate));
+    indexDateTest = min(dateSeriesTest(sDatesTest &gt;= rawDate));
+
+    <span class="keyword">if</span> nYear &lt;= 20
+        yearMat = indMatTrain((nYear-1)*12+1:(nYear-1)*12+12, :, :, :);
+    <span class="keyword">else</span>
+        yearMat = indMatTest;
+        <span class="keyword">if</span>( sum(yearMat(:)) &gt;= maxTestYear)
+            <span class="keyword">break</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    disp(sum(yearMat(:)))
+    <span class="keyword">if</span>( nYear&lt;=20 &amp;&amp; sum(yearMat(:)) &gt;= maxTrainEachYear)
+        disp([<span class="string">'Year '</span>, num2str(1995+nYear-1), <span class="string">'got enough data. Go to next year...'</span>]);
+        disp([<span class="string">'line: '</span>, num2str(nLine)]);
+        <span class="keyword">while</span> rawDate &lt;= sDatesTrain(nYear*12)
+            <span class="comment">% every time skip 10000 lines until find the next year</span>
+            <span class="keyword">for</span> yI = 1:100000
+                fgetl(fidRaw);
+            <span class="keyword">end</span>
+            nLine = nLine + 100000;
+            disp([<span class="string">'line: '</span>, num2str(nLine)])
+            rawLine = fgetl(fidRaw);
+            rawLine = strsplit(rawLine, <span class="string">'","'</span>);
+            rawDate = datenum(rawLine(nColumnDate));
+            nLine = nLine+1;
+            disp([<span class="string">'line: '</span>, num2str(nLine)])
+        <span class="keyword">end</span>
+        nYear = nYear + 1;
+        <span class="keyword">continue</span>
+    <span class="keyword">end</span>
+
+    <span class="comment">% typeIndex</span>
+    indexType = typeSeries(sTypes == rawType);
+    <span class="keyword">if</span> (isempty(indexType) || numel(indexType) &gt;= 2)
+       nLine = nLine + 1;
+       <span class="keyword">continue</span>
+    <span class="keyword">end</span>
+    rawType = indexType; <span class="comment">% here convert the types to 1,2,3,4,5</span>
+
+    <span class="comment">% locationIndex</span>
+    indexLN = int8(rawLN) +1;
+
+    <span class="comment">% durationIndex</span>
+    indexLD = LDSeries(sLDs == rawLD);
+    <span class="keyword">if</span>(isempty(indexLD) || numel(indexType) &gt;= 2)
+       nLine = nLine + 1;
+       <span class="keyword">continue</span>
+    <span class="keyword">end</span>
+    rawLD = indexLD; <span class="comment">% here convert lease duration to 1,2</span>
+
+    nLine = nLine + 1;
+
+    <span class="comment">% build up data and check the sampling status</span>
+<span class="comment">%     recordClean = sprintf(fFormatSpec, [rawPrice, rawDate, rawType, rawLN, rawLD]);</span>
+    <span class="comment">% check whether we've got enough samples</span>
+
+    <span class="comment">% whether each year is reached</span>
+
+    <span class="keyword">if</span>(min(indMatTrain(:)) &gt;= maxTrainEach &amp;&amp; rawDate &lt; sDatesTest(1))
+        <span class="keyword">continue</span>
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> (min(indMatTest(:) &gt;= maxTestEach))
+        <span class="keyword">break</span>;
+    <span class="keyword">end</span>
+
+    <span class="comment">% split file</span>
+    <span class="keyword">if</span> ( rawDate &lt; splitDate)
+            <span class="keyword">if</span> (indMatTrain(indexDateTrain, indexType, indexLN, indexLD) &gt;= maxTrainEach )
+                <span class="keyword">continue</span>;
+            <span class="keyword">end</span>
+        fprintf(fidTrain, fFormatSpec, [rawPrice, rawDate, rawType, rawLN, rawLD]);
+        indMatTrain(indexDateTrain, indexType, indexLN, indexLD) = <span class="keyword">...</span>
+            indMatTrain(indexDateTrain, indexType, indexLN, indexLD)+1;
+        <span class="keyword">continue</span>
+    <span class="keyword">else</span>
+        <span class="keyword">if</span>(indMatTest(indexDateTest, indexType, indexLN, indexLD) &lt; maxTestEach)
+            fprintf(fidTest, fFormatSpec,  [rawPrice, rawDate, rawType, rawLN, rawLD]);
+            indMatTest(indexDateTest, indexType, indexLN, indexLD) = <span class="keyword">...</span>
+                indMatTest(indexDateTest, indexType, indexLN, indexLD)+1;
+        <span class="keyword">else</span>
+             <span class="keyword">continue</span>;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+<span class="keyword">end</span>
+fclose(fidRaw);
+fclose(fidTrain);
+fclose(fidTest);
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+close all;
+fclose all;
+clear;
+
+%% SECTION TITLE
+% DESCRIPTIVE TEXT
+%%
+% 
+% $$e^{\pi i} + 1 = 0$$
+% 
+
+% Preprocessing step: 
+% get and clean the data
+%%
+% *BOLD TEXT*
+%% configuration: set file paths and define features (using a 3rd party open source fast csv reader)
+% set paths
+rawPath = '/home/cwang/Desktop/amazonInterview/pp-complete.csv';
+opPath = '/home/cwang/Desktop/amazonInterview/MatlabWork';
+if ~exist(opPath, 'dir')
+    mkdir(opPath)
+end
+
+% define column no of features in the raw file: lease duration (7),
+% property type (5), London or Not (12)
+nColumnLD = 7;
+nColumnPT = 5;
+nColumnLN = 12;
+nColumnPR = 2;
+nColumnDate = 3;
+
+%% prepare the files:
+% 1. The raw file a huge csv file which will take a long time to import, thus I split
+% the file into two first: the training set with data before 2015, and the
+% testing file with data after 2015
+% 2. Because we only need the 7, 5, and 12 columns in the file, other data
+% will be ignored. However, one important column is the date (column 3), to
+% check whether the value of the property rise naturally
+% 3. For convenient analysis, all the data will be converted to and
+% represented by a float number 
+
+% number of columns can be detected in linux by (actually not necessary):
+% [status, result] = system( ['wc -l ', rawPath] );
+
+% check whether there is header
+fidRaw = fopen(rawPath, 'r');
+disp(fgetl(fidRaw));
+fclose(fidRaw);
+% turns out no header
+
+% set the split point and file format of testing and training date
+splitDate = datenum('2015-1-1');
+fFormatSpec = '%d, %d, %d, %d, %d\n';
+
+% to sample the date build up a 4-D count matrix that count the number of
+% each input type:
+% 1. month (1995-2014: 20*12 = 240 months); 2. property type (5 types); 
+% 3. whether london (0 or 1); 4. lease duration ( long or unlimit)
+indMatTrain = zeros(240, 4, 2, 2);
+indMatTest = zeros(12, 4, 2, 2);
+
+% 10 each train type, at least 5
+maxTrainEach = 5;
+% minTrainEach = 2;
+
+% 10000 each year
+maxTrainEachYear = 400;
+
+% 20 each test type
+maxTestEach = 10;
+maxTestYear = 1000;
+
+% build date indicator vector
+[Y,M] = meshgrid(1995:2014, 1:12);
+sDatesTrain = datenum([Y(:), M(:), ones(numel(Y),1)]);
+dateSeriesTrain = 1:numel(sDatesTrain);
+
+sDatesTest = datenum(2015, 1:12, 1);
+dateSeriesTest = 1:numel(sDatesTest);
+
+% build property type indicator vector
+sTypes = int8(['D', 'S', 'T', 'F']); % we won't consider O as it's rarely happened
+typeSeries = 1:4;
+
+% build location indicator vector
+sLNs = logical([0, 1]);
+LNSeries = 1:2;
+
+% build lease duration indicator vector
+sLDs = int8(['F', 'L']);
+LDSeries = 1:2;
+
+% each time read a line in the file, at the same time sample the monthly data
+fidRaw = fopen(rawPath, 'r');
+fidTrain = fopen([opPath, filesep, 'trainFile.csv'], 'a');
+fidTest = fopen([opPath, filesep, 'testFile.csv'], 'a');
+nLine = 1;
+nYear = 1; % 1995
+while ~feof(fidRaw)
+    disp(['line: ', num2str(nLine)]);
+    rawLine = fgetl(fidRaw);
+    rawLine = strsplit(rawLine, '","');
+    
+    % processing price in int32
+    rawPrice = int32(str2double(rawLine(nColumnPR)));
+    
+    % data
+    rawDate = datenum(rawLine(nColumnDate));
+    if (nYear <= 20 && rawDate < sDatesTrain( (nYear-1)*12 + 1 ) )
+       while rawDate <= sDatesTrain((nYear-1)*12 + 1)
+            % every time skip 10000 lines until find the next year
+            for yI = 1:100000
+                fgetl(fidRaw);
+            end
+            nLine = nLine + 100000;
+            disp(['line: ', num2str(nLine)])
+            rawLine = fgetl(fidRaw);
+            rawLine = strsplit(rawLine, '","');
+            rawDate = datenum(rawLine(nColumnDate));
+            nLine = nLine+1;
+            disp(['line: ', num2str(nLine)])
+        end
+        continue;
+    end
+    
+    % property type only have D, S, T, F, O, coded to their ASCII code
+    rawType = int8(rawLine{nColumnPT});
+    
+    % location: london -> 1, others 0
+    rawLN = ~isempty(regexpi(rawLine{nColumnLN}, 'LONDON'));
+    
+    % Duration: using ASCII code
+    rawLD = int8(rawLine{nColumnLD});
+    
+    % check whether there are enough samples of this record
+    % dateIndex
+    indexDateTrain = min(dateSeriesTrain(sDatesTrain >= rawDate));
+    indexDateTest = min(dateSeriesTest(sDatesTest >= rawDate));
+    
+    if nYear <= 20
+        yearMat = indMatTrain((nYear-1)*12+1:(nYear-1)*12+12, :, :, :);
+    else
+        yearMat = indMatTest;
+        if( sum(yearMat(:)) >= maxTestYear)
+            break
+        end
+    end
+    
+    disp(sum(yearMat(:)))
+    if( nYear<=20 && sum(yearMat(:)) >= maxTrainEachYear)
+        disp(['Year ', num2str(1995+nYear-1), 'got enough data. Go to next year...']);
+        disp(['line: ', num2str(nLine)]);
+        while rawDate <= sDatesTrain(nYear*12)
+            % every time skip 10000 lines until find the next year
+            for yI = 1:100000
+                fgetl(fidRaw);
+            end
+            nLine = nLine + 100000;
+            disp(['line: ', num2str(nLine)])
+            rawLine = fgetl(fidRaw);
+            rawLine = strsplit(rawLine, '","');
+            rawDate = datenum(rawLine(nColumnDate));
+            nLine = nLine+1;
+            disp(['line: ', num2str(nLine)])
+        end
+        nYear = nYear + 1;
+        continue
+    end
+    
+    % typeIndex
+    indexType = typeSeries(sTypes == rawType);
+    if (isempty(indexType) || numel(indexType) >= 2)
+       nLine = nLine + 1;
+       continue
+    end
+    rawType = indexType; % here convert the types to 1,2,3,4,5
+    
+    % locationIndex
+    indexLN = int8(rawLN) +1;
+    
+    % durationIndex
+    indexLD = LDSeries(sLDs == rawLD);
+    if(isempty(indexLD) || numel(indexType) >= 2)
+       nLine = nLine + 1;
+       continue
+    end
+    rawLD = indexLD; % here convert lease duration to 1,2
+    
+    nLine = nLine + 1;
+    
+    % build up data and check the sampling status
+%     recordClean = sprintf(fFormatSpec, [rawPrice, rawDate, rawType, rawLN, rawLD]);
+    % check whether we've got enough samples
+    
+    % whether each year is reached
+    
+    if(min(indMatTrain(:)) >= maxTrainEach && rawDate < sDatesTest(1))
+        continue
+    end
+    if (min(indMatTest(:) >= maxTestEach))
+        break;
+    end
+
+    % split file
+    if ( rawDate < splitDate)
+            if (indMatTrain(indexDateTrain, indexType, indexLN, indexLD) >= maxTrainEach )
+                continue;
+            end
+        fprintf(fidTrain, fFormatSpec, [rawPrice, rawDate, rawType, rawLN, rawLD]);
+        indMatTrain(indexDateTrain, indexType, indexLN, indexLD) = ...
+            indMatTrain(indexDateTrain, indexType, indexLN, indexLD)+1;
+        continue
+    else
+        if(indMatTest(indexDateTest, indexType, indexLN, indexLD) < maxTestEach)
+            fprintf(fidTest, fFormatSpec,  [rawPrice, rawDate, rawType, rawLN, rawLD]);
+            indMatTest(indexDateTest, indexType, indexLN, indexLD) = ...
+                indMatTest(indexDateTest, indexType, indexLN, indexLD)+1;
+        else
+             continue;
+        end
+    end
+    
+end
+fclose(fidRaw);
+fclose(fidTrain);
+fclose(fidTest);
+
+##### SOURCE END #####
+--></body></html>
